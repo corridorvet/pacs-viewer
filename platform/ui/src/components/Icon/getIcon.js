@@ -73,6 +73,7 @@ import toolStackScroll from './../../assets/icons/tool-stack-scroll.svg';
 import toolMagnify from './../../assets/icons/tool-magnify.svg';
 import toolFlipHorizontal from './../../assets/icons/tool-flip-horizontal.svg';
 import toolInvert from './../../assets/icons/tool-invert.svg';
+import toolRotateLeft from './../../assets/icons/tool-rotate-left.svg';
 import toolRotateRight from './../../assets/icons/tool-rotate-right.svg';
 import toolCine from './../../assets/icons/tool-cine.svg';
 import toolCrosshair from './../../assets/icons/tool-crosshair.svg';
@@ -176,6 +177,7 @@ const ICONS = {
   'tool-magnify': toolMagnify,
   'tool-flip-horizontal': toolFlipHorizontal,
   'tool-invert': toolInvert,
+  'tool-rotate-left': toolRotateLeft,
   'tool-rotate-right': toolRotateRight,
   'tool-cine': toolCine,
   'tool-crosshair': toolCrosshair,

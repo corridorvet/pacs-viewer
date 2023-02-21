@@ -23,21 +23,9 @@ function Header({ children, menuOptions, isReturnEnabled, onClickReturnButton, i
     <NavBar className='justify-between border-b-4 border-black' isSticky={isSticky}>
       <div className="flex justify-between flex-1">
         <div className="flex items-center">
-          {/* // TODO: Should preserve filter/sort
-              // Either injected service? Or context (like react router's `useLocation`?) */}
-          <div
-            className={classNames("inline-flex items-center mr-3", isReturnEnabled && 'cursor-pointer')}
-            onClick={onClickReturn}
-          >
-            {isReturnEnabled && <Icon name="chevron-left" className="w-8 text-primary-active" />}
-            <div className="ml-4">{WhiteLabeling ? CustomLogo(React) : <Svg name="logo-ohif" />}</div>
-          </div>
         </div>
         <div className="flex items-center">{children}</div>
         <div className="flex items-center">
-          <span className="mr-3 text-lg text-common-light">
-            {t('INVESTIGATIONAL USE ONLY')}
-          </span>
           <Dropdown id="options" showDropdownIcon={false} list={menuOptions}>
             <IconButton
               id={"options-settings-icon"}

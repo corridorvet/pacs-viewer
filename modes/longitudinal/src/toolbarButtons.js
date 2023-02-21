@@ -379,6 +379,19 @@ const toolbarButtons = [
           'Reset'
         ),
         _createActionButton(
+          'rotate-left',
+          'tool-rotate-left',
+          'Rotate Left',
+          [
+            {
+              commandName: 'rotateViewportCCW',
+              commandOptions: {},
+              context: 'CORNERSTONE',
+            },
+          ],
+          'Rotate -90'
+        ),
+        _createActionButton(
           'rotate-right',
           'tool-rotate-right',
           'Rotate Right',
