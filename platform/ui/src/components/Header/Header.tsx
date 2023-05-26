@@ -1,26 +1,33 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import { NavBar, Svg, Icon, IconButton, Dropdown } from '../';
 
-function Header({ children, menuOptions, isReturnEnabled, onClickReturnButton, isSticky, WhiteLabeling }) {
+function Header({
+  children,
+  menuOptions,
+  isReturnEnabled,
+  onClickReturnButton,
+  isSticky,
+  WhiteLabeling,
+  ...props
+}): ReactNode {
   const { t } = useTranslation('Header');
 
   // TODO: this should be passed in as a prop instead and the react-router-dom
   // dependency should be dropped
   const onClickReturn = () => {
     if (isReturnEnabled && onClickReturnButton) {
-      onClickReturnButton()
+      onClickReturnButton();
     }
   };
 
-  const CustomLogo = (React) => {
-    return WhiteLabeling.createLogoComponentFn(React)
-  }
-
   return (
-    <NavBar className='justify-between border-b-4 border-black' isSticky={isSticky}>
+    <NavBar
+      className="justify-between border-b-4 border-black"
+      isSticky={isSticky}
+    >
       <div className="flex justify-between flex-1">
         <div className="flex items-center">
         </div>
@@ -28,7 +35,7 @@ function Header({ children, menuOptions, isReturnEnabled, onClickReturnButton, i
         <div className="flex items-center">
           <Dropdown id="options" showDropdownIcon={false} list={menuOptions}>
             <IconButton
-              id={"options-settings-icon"}
+              id={'options-settings-icon'}
               variant="text"
               color="inherit"
               size="initial"
@@ -37,7 +44,7 @@ function Header({ children, menuOptions, isReturnEnabled, onClickReturnButton, i
               <Icon name="settings" />
             </IconButton>
             <IconButton
-              id={"options-chevron-down-icon"}
+              id={'options-chevron-down-icon'}
               variant="text"
               color="inherit"
               size="initial"
@@ -64,12 +71,12 @@ Header.propTypes = {
   isReturnEnabled: PropTypes.bool,
   isSticky: PropTypes.bool,
   onClickReturnButton: PropTypes.func,
-  WhiteLabeling: PropTypes.element,
+  WhiteLabeling: PropTypes.object,
 };
 
 Header.defaultProps = {
   isReturnEnabled: true,
-  isSticky: false
+  isSticky: false,
 };
 
 export default Header;

@@ -1,6 +1,8 @@
 import { eventTarget } from '@cornerstonejs/core';
 import { Enums, annotation } from '@cornerstonejs/tools';
-import { DicomMetadataStore, MeasurementService } from '@ohif/core';
+import { DicomMetadataStore } from '@ohif/core';
+import { toolNames } from './initCornerstoneTools';
+import { onCompletedCalibrationLine } from './tools/CalibrationLineTool';
 
 import measurementServiceMappingsFactory from './utils/measurementServiceMappings/measurementServiceMappingsFactory';
 import getSOPInstanceAttributes from './utils/measurementServiceMappings/utils/getSOPInstanceAttributes';
@@ -22,6 +24,7 @@ const initMeasurementService = (
     Length,
     Bidirectional,
     EllipticalROI,
+    CircleROI,
     ArrowAnnotate,
     Angle,
     CobbAngle,
@@ -64,6 +67,14 @@ const initMeasurementService = (
 
   measurementService.addMapping(
     csTools3DVer1MeasurementSource,
+    'CircleROI',
+    CircleROI.matchingCriteria,
+    CircleROI.toAnnotation,
+    CircleROI.toMeasurement
+  );
+
+  measurementService.addMapping(
+    csTools3DVer1MeasurementSource,
     'ArrowAnnotate',
     ArrowAnnotate.matchingCriteria,
     ArrowAnnotate.toAnnotation,
@@ -102,14 +113,25 @@ const initMeasurementService = (
     PlanarFreehandROI.toMeasurement
   );
 
+  // On the UI side, the Calibration Line tool will work almost the same as the
+  // Length tool
+  measurementService.addMapping(
+    csTools3DVer1MeasurementSource,
+    'CalibrationLine',
+    Length.matchingCriteria,
+    Length.toAnnotation,
+    Length.toMeasurement
+  );
+
   return csTools3DVer1MeasurementSource;
 };
 
-const connectToolsToMeasurementService = (
-  measurementService,
-  displaySetService,
-  cornerstoneViewportService
-) => {
+const connectToolsToMeasurementService = servicesManager => {
+  const {
+    measurementService,
+    displaySetService,
+    cornerstoneViewportService,
+  } = servicesManager.services;
   const csTools3DVer1MeasurementSource = initMeasurementService(
     measurementService,
     displaySetService,
@@ -131,15 +153,38 @@ const connectToolsToMeasurementService = (
       } = annotationAddedEventDetail;
       const { toolName } = metadata;
 
-      // To force the measurementUID be the same as the annotationUID
-      // Todo: this should be changed when a measurement can include multiple annotations
-      // in the future
-      annotationAddedEventDetail.uid = annotationUID;
-      annotationToMeasurement(toolName, annotationAddedEventDetail);
+      if (
+        csToolsEvent.type === completedEvt &&
+        toolName === toolNames.CalibrationLine
+      ) {
+        // show modal to input the measurement (mm)
+        onCompletedCalibrationLine(servicesManager, csToolsEvent)
+          .then(
+            () => {
+              console.log('calibration applied');
+            },
+            () => true
+          )
+          .finally(() => {
+            // we don't need the calibration line lingering around, remove the
+            // annotation from the display
+            removeAnnotation(annotationUID);
+            removeMeasurement(csToolsEvent);
+            // this will ensure redrawing of annotations
+            cornerstoneViewportService.resize();
+          });
+      } else {
+        // To force the measurementUID be the same as the annotationUID
+        // Todo: this should be changed when a measurement can include multiple annotations
+        // in the future
+        annotationAddedEventDetail.uid = annotationUID;
+        annotationToMeasurement(toolName, annotationAddedEventDetail);
+      }
     } catch (error) {
       console.warn('Failed to update measurement:', error);
     }
   }
+
   function updateMeasurement(csToolsEvent) {
     try {
       const annotationModifiedEventDetail = csToolsEvent.detail;
@@ -330,7 +375,7 @@ const connectMeasurementServiceToTools = (
         imageId = dataSource.getImageIdsForInstance({ instance });
       }
 
-      const annotationManager = annotation.state.getDefaultAnnotationManager();
+      const annotationManager = annotation.state.getAnnotationManager();
       annotationManager.addAnnotation({
         annotationUID: measurement.uid,
         highlighted: false,
